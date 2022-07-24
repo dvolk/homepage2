@@ -1,10 +1,14 @@
 {% set title = "Denis Volk's home page" %}
+{% set background = 'white' %}
+{% set heading_bg = '#333' %}
+{% set heading_fg = 'white' %}
+
 {% extends 'static/base.j2' %}
 
 {% block content %}
   <p>I am a computer programmer from the United Kingdom.</p>
 
-  {% call heading2("address-card ", "Current employment") %}
+   {% call heading2("id-badge ", "Current employment") %}
     <p>Senior software engineer at {{ link("Science and Technology Facilities Council", "https://en.wikipedia.org/wiki/Science_and_Technology_Facilities_Council") }}</p>
   {% endcall %}
 
