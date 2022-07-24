@@ -13,7 +13,7 @@
       <a style="color: {{ heading_fg }};" href="#{{ href }}">{{ icon(icon_name) }} {{ h2_title }}</a>
       <span @click="open = true" x-show="! open" style="float: right">{{ icon('toggle-off') }}</span>
       <span @click="open = false" x-show="open" style="float: right">{{ icon('toggle-on') }}</span>
-   </h2>
+    </h2>
     <span x-show="open" x-transition>
       {{ caller() }}
     </span>
@@ -27,17 +27,17 @@
       <a style="color: {{ heading_fg }};" href="{{ href }}.html">{{ icon('star') }} {{ blog_title }}</a>
       <span style="float: right">
         {{ blog_date }}
-        <a style="color: {{ heading_fg }};" href="#{{ href }}">{{ icon('anchor') }}</a>
-        <span @click="open = false" x-show="open" {{ icon('toggle-on') }}</span>
-        <span @click="open = true" x-show="! open" {{ icon('toggle-off') }}</span>
-     </span>
-   </h3>
-<span x-show="open" x-transition>
-  {% set content = caller() %}
-  {{ content }}
-  {{ save_blog_entry(blog_title, blog_date, content) }}
-</span>
-</span>
+        <a x-show="open" style="color: {{ heading_fg }};" href="#{{ href }}">{{ icon('anchor') }}</a>
+        <span @click="open = false" x-show="open">{{ icon('toggle-on') }}</span>
+        <span @click="open = true; location.hash = '#{{ href }}'" x-show="! open">{{ icon('toggle-off') }}</span>
+      </span>
+    </h3>
+    <span x-show="open" x-transition>
+      {% set content = caller() %}
+      {{ content }}
+      {{ save_blog_entry(blog_title, blog_date, content) }}
+    </span>
+  </span>
 {% endmacro %}
 
 {% macro simplelink(link_url) %}

@@ -5,6 +5,9 @@ import argparse
 import subprocess
 import shutil
 import sys
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s:%(message)s")
 
 import jinja2
 
@@ -22,7 +25,7 @@ def icon(name):
 def check_prereqs(prereqs):
     for prereq in prereqs:
         if not shutil.which(prereq):
-            print("You need {prereq} to run this.")
+            logging.critical("You need {prereq} to run this.")
             sys.exit(1)
 
 
@@ -42,7 +45,7 @@ def save_blog_entry(blog_title, blog_date, blog_content):
 {% endblock %}
 """
     )
-    print(f"BLOG ENTRY {blog_title} -> {out_filename}")
+    logging.info(f"BLOG ENTRY {blog_title} -> {out_filename}")
     template = jinja2.Environment(
         loader=jinja2.FileSystemLoader(content_dir),
     ).from_string(
@@ -80,11 +83,10 @@ def main(content_dir2):
             save_blog_entry=save_blog_entry,
         )
         out_filename = p.with_suffix(".html")
-        print(f"{p} -> {out_filename}")
+        logging.info(f"{p} -> {out_filename}")
         open(out_filename, "w").write(out_text)
 
     subprocess.check_output(["rsync", "-aXxv", f"{content_dir}/", f"{content_dir}-out"])
-    print("")
 
 
 if __name__ == "__main__":
