@@ -8,13 +8,13 @@
 
 {% macro heading2(icon_name, h2_title) %}
   {% set href = create_href(icon_name, h2_title) %}
-  <span x-data="{ open_{{ href }}: $(location).attr('hash') === '#{{ href }}' ? true : $persist(true) }">
+  <span x-data="{ open: $(location).attr('hash') === '#{{ href }}' ? true : $persist(true).as('{{ href }}') }">
     <h2 id="{{ href }}">
       <a style="color: {{ heading_fg }};" href="#{{ href }}">{{ icon(icon_name) }} {{ h2_title }}</a>
-      <span @click="open_{{ href }} = true" x-show="! open_{{ href }}" style="float: right">{{ icon('toggle-off') }}</span>
-      <span @click="open_{{ href }} = false" x-show="open_{{ href }}" style="float: right">{{ icon('toggle-on') }}</span>
+      <span @click="open = true" x-show="! open" style="float: right">{{ icon('toggle-off') }}</span>
+      <span @click="open = false" x-show="open" style="float: right">{{ icon('toggle-on') }}</span>
    </h2>
-    <span x-show="open_{{ href }}" x-transition>
+    <span x-show="open" x-transition>
       {{ caller() }}
     </span>
   </span>
@@ -22,17 +22,17 @@
 
 {% macro blogentry(blog_title, blog_date, is_open) %}
   {% set href = create_href(blog_date, blog_title) %}
-  <span x-data="{ open_{{ href }}: $(location).attr('hash') === '#{{ href }}' ? true : $persist({{ is_open }}) }">
+  <span x-data="{ open: $(location).attr('hash') === '#{{ href }}' ? true : $persist({{ is_open }}).as('{{ href }}') }">
     <h3 id="{{ href }}">
       <a style="color: {{ heading_fg }};" href="{{ href }}.html">{{ icon('star') }} {{ blog_title }}</a>
       <span style="float: right">
         {{ blog_date }}
         <a style="color: {{ heading_fg }};" href="#{{ href }}">{{ icon('anchor') }}</a>
-        <span @click="open_{{ href }} = false" x-show="open_{{ href }}" {{ icon('toggle-on') }}</span>
-        <span @click="open_{{ href }} = true" x-show="! open_{{ href }}" {{ icon('toggle-off') }}</span>
+        <span @click="open = false" x-show="open" {{ icon('toggle-on') }}</span>
+        <span @click="open = true" x-show="! open" {{ icon('toggle-off') }}</span>
      </span>
    </h3>
-<span x-show="open_{{ href }}" x-transition>
+<span x-show="open" x-transition>
   {% set content = caller() %}
   {{ content }}
   {{ save_blog_entry(blog_title, blog_date, content) }}
