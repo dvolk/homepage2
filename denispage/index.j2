@@ -1,0 +1,120 @@
+{% set title = "Denis Volk's home page" %}
+{% extends 'static/base.j2' %}
+
+{% block content %}
+  <p>I am a computer programmer from the United Kingdom.</p>
+
+  {% call heading2("address-card ", "Current employment") %}
+    <p>Senior software engineer at {{ link("Science and Technology Facilities Council", "https://en.wikipedia.org/wiki/Science_and_Technology_Facilities_Council") }}</p>
+  {% endcall %}
+
+  {% call heading2("book", "Publications") %}
+    <p>D. Volk et al. Catwalk: identifying closely related sequences in large microbial sequence databases. Jun 2022 {{ simplelink("https://doi.org/10.1099/mgen.0.000850") }}</p>
+  {% endcall %}
+
+  {% call heading2("camera", "Photography") %}
+    <p>You can look at my photos on {{ link("my flickr account", "https://flickr.com/photos/broadriver") }}</p>
+  {% endcall %}
+
+   {% call heading2("git-square", "OSS work") %}
+    <p>Desktop interface to SLURM cluster computing systems<br/>
+      {{ simplelink("https://github.com/dvolk/shawl5") }}
+    </p>
+
+    <p>Task/kanban board<br/>
+      {{ simplelink("https://github.com/dvolk/catboard") }}
+    </p>
+
+    <p>Ansible playbook that deploys my preferred Linux desktop<br/>
+      {{ simplelink("https://github.com/dvolk/desktop") }}
+    </p>
+  {% endcall %}
+
+  {% call heading2("calendar", "Entries") %}
+
+    {% call blogentry("Thoughts on Nim", "2020-10-31", "false") %}
+      <p>Summary: Pretty good. Would recommend Nim.</p>
+
+      <p>Introduction</p>
+
+      <p>When I first heard of the Nim programming language (then called Nimrod), I was very excited. It promised the combination of Python's ease of use, and C's performance. I played around with it for a while, but didn't use it seriously.</p>
+
+      <p>Forward a couple of years. At work, we were mostly using Python, and had no need for performance, except in one case where an application was developed that worked well initially, but was straining as the data it processed only grew. Occasionally there were rumblings from management about how we're going to handle this, especially as they were expecting increased growth.</p>
+
+      <p>We had the author of the software (who remained an external collaborator) explain the core of the application to us, and I started playing around with re-implementing it.</p>
+
+      <p>Python isn't so slow</p>
+
+      <p>I decided to prototype it in Python. The critical part of the application used set operations. Although we usually think of Python as a slow language - and it is slow - it turns out that sets in Python are fast. Indeed, from what I tested, they were faster than C++ std::set or Nim IntSet.</p>
+
+      <p>Disappointed that I couldn't get better performance by just switching to a different language, I started playing around with set operations, trying to make them faster. During this I discovered that we didn't really need to do the full operation and could exit early based on some threshold.</p>
+
+      <p>Set operations in Python are fast because they're written in clever C. Re-implementing them in pure Python to add the early exit logic would not work.</p>
+
+      <p>I decided to try Nim.</p>
+
+      <p>Re-learning Nim</p>
+
+      <p>I hadn't used Nim in years now. It took some time to get used to it again. Although Nim's syntax looks a lot like Python's, it is quite different: Nim's variables have static types. This means that unlike in Python, the following doesn't work:</p>
+
+      <pre>
+        var a = "hello"
+        a = 3
+      </pre>
+
+      <p>nor can you put different types in a collection:</p>
+
+      <pre>
+        let xs = ["hello", 7, [3.14]]
+      </pre>
+
+      <p>This is an old debate. My thoughts are that I strongly prefer static types when reading other people's software, and slightly prefer dynamic types when writing my own software.</p>
+
+      <p>Using Nim</p>
+
+      <p>I was a bit apprehensive about deviating from the norm by using Nim at work. Even if the project was a success, I wasn't sure that I was doing anyone a favor if I were to leave and they had to hire someone new to maintain it given that few people know Nim. I was eager to use it though, and the application was small and did a very specific and well-defined task, so it's unlikely that they would have to change it much in the future.</p>
+
+      <p>I rewrote the Python prototype in Nim and started working on the set optimisation. I took C++ std::set operations, rewrote them in Nim with the early exit logic, trying vaguely to keep in mind things like cache coherency when coming up with the data types and algortihms.</p>
+
+      <p>This turned out to be a success: the runtime for typical queries was around 100 times faster than the production Python version. The collaborator pointed out that this was so fast that we could get rid of a cache and further reduce memory use, but more importantly, make the program even simpler!</p>
+
+      <p>Bugs</p>
+
+      <p>I did encounter some bugs. One of them was in one of the collections in the Nim standard library. This was reported and fixed a couple of days later.</p>
+
+      <p>The collaborator seemed eager to continue using the Python version by incorporating my program and using Python for storage and some extra logic. I agreed with this and tried to use nimpy, which allows one to write Nim and load it as a Python module.</p>
+
+      <p>This worked well at first, but it would randomly crash when we tried to use the module in a Python Flask application. To work around this, I wrote a Python module that would start the Nim program and communicate with it through http.</p>
+
+      <p>Although these bugs were a bit stressful, overall I think Nim is quite stable, and we haven't encountered any other problems since.</p>
+
+      <p>Performance regression</p>
+
+      <p>Newer versions of Nim offer an interesting alternative memory management strategy called ARC, which can be enabled with --gc:arc. When I tested my program with this, I found that it performed 50 times slower than with the default gc! Since memory management in Nim is somewhat magical, I decided to just leave it alone and not use --gc:arc. After gaining more experience with the Nim memory model, I tried to fix it and it turned out that changing some big Tables into ref Tables fixed the issue. This made the performance and memory use the same as with the default gc.</p>
+
+      <p>Conclusion</p>
+
+      <p>The program is used by a public health body to perform critical analysis. We are also using it in two other projects in our group.</p>
+
+      <p>Overall using Nim turned out to be a good idea. Nim's static type system seems to make prototyping slightly slower, but it enables better performance and it is sometimes easier to reason about. Nim code is very pleasant to read and write, unlike, e.g. C++. Memory handling in Nim is still seems somewhat mysterious to me however and I don't feel as in control of it as in C++.</p>
+    {% endcall %}
+
+
+    {% call blogentry("New blog", "2020-10-26", "false") %}
+
+      <p>I haven't kept a blog since 2016, and I kind of miss it. Writing is a great intellectual exercise, and keeping a blog also allows one to spread ideas and get feedback.</p>
+
+      <p>Part of the reason why I haven't written anything is because the old blog had a very compact style that hasn't been popular in a while. It reflected a time when I only had a laptop with what was, even then, a sorry screen resolution. Looking at the web now on a 43" 4k monitor, I no longer mind the modern web's big fonts and margins.</p>
+
+      <p>The blog generator I wrote when I was new to Python was a bit messy. Though it continues to work surprisingly well and has some nice features. I could have just changed the style, but I thought I would see what I would come up with now after a couple of years of writing Python professionally.</p>
+
+      <p>The new one mostly has usability improvements. The posts are now written in markdown instead of HTML. This is less flexible, but easier to write. I'm not using special tags any more, for e.g. the date. Instead the "Posted on..." is just part of the post! Some of the features of the previous generator were interesting but not that useful - for example creating a list of posts whose title includes some keyword.</p>
+
+      <p>I will however add RSS support at some point.</p>
+
+{% endcall %}
+
+
+
+{% endcall %}
+{% endblock %}
