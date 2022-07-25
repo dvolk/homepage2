@@ -1,6 +1,37 @@
+{% set background = 'white' %}
+{% set heading_bg = 'white' %}
+{% set heading_fg = 'indigo' %}
+{% set author = "Denis Volk" %}
+
 {% macro heading1(icon_name, h1_title) %}
-  <center><h1><a style="color: black;" href="#">{{ h1_title }}</a></h1></center>
+  {% if is_blog_page %}
+    <center>
+      <p><a href="./">{{ icon('arrow-left') }} Back to index</a></p>
+
+      <h1><a style="color: black;" href="#">{{ h1_title }}</a></h1>
+
+      <p>by {{ author }}</p>
+    </center>
+    <hr/>
+  {% else %}
+    <center><h1><a style="color: black;" href="#">{{ h1_title }}</a></h1></center>
+    <hr/>
+  {% endif %}
+
   {{ caller() }}
+
+  <hr/>
+  {% if is_blog_page %}
+    <center>
+      <p>Page updated on {{ now.date() }}. {{ link("Page source", "https://github.com/dvolk/homepage2") }}</p>
+
+      <p><a href="./">{{ icon('arrow-left') }} Back to index</a></p>
+    </center>
+  {% else %}
+    <center>
+      <p>Page updated on {{ now.date() }}. {{ link("Page source", "https://github.com/dvolk/homepage2") }}</p>
+    </center>
+  {% endif %}
 {% endmacro %}
 
 {% macro heading2(icon_name, h2_title) %}
@@ -19,22 +50,38 @@
 
 {% macro blogentry(blog_title, blog_date, is_open) %}
   {% set href = create_href(blog_date, blog_title) %}
+  {% set _ = set_blog_entry_data(blog_title, blog_date) %}
   <span x-data="{ open: $(location).attr('hash') === '#{{ href }}' ? true : $persist({{ is_open }}).as('{{ href }}') }">
-    <h3 id="{{ href }}">
+    <h3 {# id="{{ href }}" #}>
       <a style="color: {{ heading_fg }};" href="{{ href }}.html">{{ icon('star') }} {{ blog_title }}</a>
       <span style="float: right">
         {{ blog_date }}
-        <a x-show="open" style="color: {{ heading_fg }};" href="#{{ href }}">{{ icon('anchor') }}</a>
+        {# <a x-show="open" style="color: {{ heading_fg }};" href="#{{ href }}">{{ icon('anchor') }}</a> #}
         <span @click="open = false" x-show="open">{{ icon('toggle-on') }}</span>
         <span @click="open = true; location.hash = '#{{ href }}'" x-show="! open">{{ icon('toggle-off') }}</span>
       </span>
     </h3>
     <span x-show="open" x-transition>
       {% set content = caller() %}
+      {% set _ = save_blog_entry(blog_title, blog_date, content) %}
       {{ content }}
-      {{ save_blog_entry(blog_title, blog_date, content) }}
     </span>
   </span>
+{% endmacro %}
+
+{% macro blog_section(blog_section_title) %}
+  {% set (blog_title, blog_date) = get_blog_entry_data() %}
+  {% set href = create_href(blog_date, blog_title, blog_section_title) %}
+  <h4 id="{{ href }}">
+    <a style="color: black;" href="#{{ href }}">{{ icon('chevron-circle-right') }} {{ blog_section_title }}</a>
+  </h4>
+  {{ caller() }}
+{% endmacro %}
+
+{% macro code_block(code_lang) %}
+<div style="padding-left: 10px; border: 4px dotted #ccc">
+{{ pygments_code_block(caller(), code_lang) }}
+</div>
 {% endmacro %}
 
 {% macro simplelink(link_url) %}
@@ -79,7 +126,6 @@
     h1 {
     padding: 4px;
     font-family: Jetbrains Mono Medium, monospace !important;
-    border-bottom: 2px solid black;
     }
     h2,h3,h4,h5,h6 {
     padding: 4px;
@@ -106,6 +152,7 @@
     .inner {
     margin: 0px;
     }
+    {{ pygments_html_formatter_css }}
   </style>
 
   <body>
@@ -116,12 +163,10 @@
           {% endblock %}
         {% endcall %}
 
-        <hr/>
-        <p>Page updated on {{ now.date() }}. {{ link("Page source", "https://github.com/dvolk/homepage2") }}</p>
-
       </div>
     </div>
     <script type="text/javascript" src="static/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/alpine-collective/alpine-magic-helpers@1.2.x/dist/index.min.js"></script>
     <script type="text/javascript" src="static/alpine3xx.persist.cdn.min.js"></script>
     <script type="text/javascript" src="static/alpine3xx.cdn.min.js"></script>
     <script type="text/javascript" src="static/site.js"></script>
