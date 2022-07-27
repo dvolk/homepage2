@@ -4,171 +4,171 @@
 {% set author = "Denis Volk" %}
 
 {% macro heading1(icon_name, h1_title) %}
-  {% if is_blog_page %}
-    <center>
-      <p><a href="./">{{ icon('arrow-left') }} Back to index</a></p>
+    {% if is_blog_page %}
+        <center>
+            <p><a href="./">{{ icon('arrow-left') }} Back to index</a></p>
 
-      <h1><a style="color: black;" href="#">{{ h1_title }}</a></h1>
+            <h1><a style="color: black;" href="#">{{ h1_title }}</a></h1>
 
-      <p>by {{ author }}</p>
-    </center>
+            <p>by {{ author }}</p>
+        </center>
+        <hr/>
+    {% else %}
+        <center><h1><a style="color: black;" href="#">{{ h1_title }}</a></h1></center>
+        <hr/>
+    {% endif %}
+
+    {{ caller() }}
+
     <hr/>
-  {% else %}
-    <center><h1><a style="color: black;" href="#">{{ h1_title }}</a></h1></center>
-    <hr/>
-  {% endif %}
+    {% if is_blog_page %}
+        <center>
+            <p>Page updated on {{ now.date() }}. {{ link("Page source", "https://github.com/dvolk/homepage2") }}</p>
 
-  {{ caller() }}
-
-  <hr/>
-  {% if is_blog_page %}
-    <center>
-      <p>Page updated on {{ now.date() }}. {{ link("Page source", "https://github.com/dvolk/homepage2") }}</p>
-
-      <p><a href="./">{{ icon('arrow-left') }} Back to index</a></p>
-    </center>
-  {% else %}
-    <center>
-      <p>Page updated on {{ now.date() }}. {{ link("Page source", "https://github.com/dvolk/homepage2") }}</p>
-    </center>
-  {% endif %}
+            <p><a href="./">{{ icon('arrow-left') }} Back to index</a></p>
+        </center>
+    {% else %}
+        <center>
+            <p>Page updated on {{ now.date() }}. {{ link("Page source", "https://github.com/dvolk/homepage2") }}</p>
+        </center>
+    {% endif %}
 {% endmacro %}
 
 {% macro heading2(icon_name, h2_title) %}
-  {% set href = create_href(icon_name, h2_title) %}
-  <span x-data="{ open: $(location).attr('hash') === '#{{ href }}' ? true : $persist(true).as('{{ href }}') }">
-    <h2 id="{{ href }}">
-      <a style="color: {{ heading_fg }};" href="#{{ href }}">{{ icon(icon_name) }} {{ h2_title }}</a>
-      <span @click="open = true" x-show="! open" style="float: right">{{ icon('toggle-off') }}</span>
-      <span @click="open = false" x-show="open" style="float: right">{{ icon('toggle-on') }}</span>
-    </h2>
-    <span x-show="open" x-transition>
-      {{ caller() }}
+    {% set href = create_href(icon_name, h2_title) %}
+    <span x-data="{ open: $(location).attr('hash') === '#{{ href }}' ? true : $persist(true).as('{{ href }}') }">
+        <h2 id="{{ href }}">
+            <a style="color: {{ heading_fg }};" href="#{{ href }}">{{ icon(icon_name) }} {{ h2_title }}</a>
+            <span @click="open = true" x-show="! open" style="float: right">{{ icon('toggle-off') }}</span>
+            <span @click="open = false" x-show="open" style="float: right">{{ icon('toggle-on') }}</span>
+        </h2>
+        <span x-show="open" x-transition>
+            {{ caller() }}
+        </span>
     </span>
-  </span>
 {% endmacro %}
 
 {% macro blogentry(blog_title, blog_date, is_open) %}
-  {% set href = create_href(blog_date, blog_title) %}
-  {% set _ = set_blog_entry_data(blog_title, blog_date) %}
-  <span x-data="{ open: $(location).attr('hash') === '#{{ href }}' ? true : $persist({{ is_open }}).as('{{ href }}') }">
-    <h3 {# id="{{ href }}" #}>
-      <a style="color: {{ heading_fg }};" href="{{ href }}.html">{{ icon('star') }} {{ blog_title }}</a>
-      <span style="float: right">
-        {{ blog_date }}
-        {# <a x-show="open" style="color: {{ heading_fg }};" href="#{{ href }}">{{ icon('anchor') }}</a> #}
-        <span @click="open = false" x-show="open">{{ icon('toggle-on') }}</span>
-        <span @click="open = true; location.hash = '#{{ href }}'" x-show="! open">{{ icon('toggle-off') }}</span>
-      </span>
-    </h3>
-    <span x-show="open" x-transition>
-      {% set content = caller() %}
-      {% set _ = save_blog_entry(blog_title, blog_date, content) %}
-      {{ content }}
+    {% set href = create_href(blog_date, blog_title) %}
+    {% set _ = set_blog_entry_data(blog_title, blog_date) %}
+    <span x-data="{ open: $(location).attr('hash') === '#{{ href }}' ? true : $persist({{ is_open }}).as('{{ href }}') }">
+        <h3 {# id="{{ href }}" #}>
+            <a style="color: {{ heading_fg }};" href="{{ href }}.html">{{ icon('star') }} {{ blog_title }}</a>
+            <span style="float: right">
+                {{ blog_date }}
+                {# <a x-show="open" style="color: {{ heading_fg }};" href="#{{ href }}">{{ icon('anchor') }}</a> #}
+                <span @click="open = false" x-show="open">{{ icon('toggle-on') }}</span>
+                <span @click="open = true; location.hash = '#{{ href }}'" x-show="! open">{{ icon('toggle-off') }}</span>
+            </span>
+        </h3>
+        <span x-show="open" x-transition>
+            {% set content = caller() %}
+            {% set _ = save_blog_entry(blog_title, blog_date, content) %}
+            {{ content }}
+        </span>
     </span>
-  </span>
 {% endmacro %}
 
 {% macro blog_section(blog_section_title) %}
-  {% set (blog_title, blog_date) = get_blog_entry_data() %}
-  {% set href = create_href(blog_date, blog_title, blog_section_title) %}
-  <h4 id="{{ href }}">
-    <a style="color: black;" href="#{{ href }}">{{ icon('chevron-circle-right') }} {{ blog_section_title }}</a>
-  </h4>
-  {{ caller() }}
+    {% set (blog_title, blog_date) = get_blog_entry_data() %}
+    {% set href = create_href(blog_date, blog_title, blog_section_title) %}
+    <h4 id="{{ href }}">
+        <a style="color: black;" href="#{{ href }}">{{ icon('chevron-circle-right') }} {{ blog_section_title }}</a>
+    </h4>
+    {{ caller() }}
 {% endmacro %}
 
 {% macro code_block(code_lang) %}
-<div style="padding-left: 10px; border: 4px dotted #ccc">
-{{ pygments_code_block(caller(), code_lang) }}
-</div>
+    <div style="padding-left: 10px; border: 4px dotted #ccc">
+        {{ pygments_code_block(caller(), code_lang) }}
+    </div>
 {% endmacro %}
 
 {% macro simplelink(link_url) %}
-  <a href="{{ link_url }}">{{ link_url }}{{ icon('external-link') }}</a>
+    <a href="{{ link_url }}">{{ link_url }}{{ icon('external-link') }}</a>
 {% endmacro %}
 
 {% macro link(link_title, link_url) %}
-  <a href="{{ link_url }}">{{ link_title }}{{ icon('external-link') }}</a>
+    <a href="{{ link_url }}">{{ link_title }}{{ icon('external-link') }}</a>
 {% endmacro %}
 
 <!DOCTYPE html>
 <html lang="en">
-  <meta charset="UTF-8">
-  <title>{{ title }}</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link rel="stylesheet" href="static/Font-Awesome-4.7.0/css/font-awesome.min.css">
-  <style type="text/css">
-    @font-face {
-    font-family: 'JetBrains Mono';
-    font-style: normal;
-    font-weight: 500;
-    font-display: swap;
-    src: url(/static/jetbrainsmono/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8-qxTOlOV.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-    }
-    a {
-    text-decoration: none;
-    color: seagreen;
-    }
-    body  {
-    margin: 0px;
-    padding: 0px;
-    font-family: Jetbrains Mono Medium, monospace !important;
-    background-color: {{ background }};
-    }
-    pre {
-    font-family: Jetbrains Mono Medium, monospace !important
-    }
-    ul {
-    list-style-type: none; margin: 0px; padding: 0px;
-    }
-    h1 {
-    padding: 4px;
-    font-family: Jetbrains Mono Medium, monospace !important;
-    }
-    h2,h3,h4,h5,h6 {
-    padding: 4px;
-    font-family: Jetbrains Mono Medium, monospace !important;
-    background-color: {{ heading_bg }};
-    color: {{ heading_fg }};
-    border-bottom: 2px solid {{ heading_fg }};
-    border-radius: 10px;
-    }
-    .timestamp {
-    color: {{ heading_fg }};
-    float: right;
-    }
-    pre {
-    white-space: pre-wrap;
-    }
-    hr {
-    border-top: 2px solid black;
-    }
-    .outer {
-    margin: 0 auto;
-    width: 600px;
-    }
-    .inner {
-    margin: 0px;
-    }
-    {{ pygments_html_formatter_css }}
-  </style>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="static/Font-Awesome-4.7.0/css/font-awesome.min.css">
+    <style type="text/css">
+     @font-face {
+         font-family: 'JetBrains Mono';
+         font-style: normal;
+         font-weight: 500;
+         font-display: swap;
+         src: url(/static/jetbrainsmono/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8-qxTOlOV.woff2) format('woff2');
+         unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+     }
+     a {
+         text-decoration: none;
+         color: seagreen;
+     }
+     body  {
+         margin: 0px;
+         padding: 0px;
+         font-family: Jetbrains Mono Medium, monospace !important;
+         background-color: {{ background }};
+     }
+     pre {
+         font-family: Jetbrains Mono Medium, monospace !important
+     }
+     ul {
+         list-style-type: none; margin: 0px; padding: 0px;
+     }
+     h1 {
+         padding: 4px;
+         font-family: Jetbrains Mono Medium, monospace !important;
+     }
+     h2,h3,h4,h5,h6 {
+         padding: 4px;
+         font-family: Jetbrains Mono Medium, monospace !important;
+         background-color: {{ heading_bg }};
+         color: {{ heading_fg }};
+         border-bottom: 2px solid {{ heading_fg }};
+         border-radius: 10px;
+     }
+     .timestamp {
+         color: {{ heading_fg }};
+         float: right;
+     }
+     pre {
+         white-space: pre-wrap;
+     }
+     hr {
+         border-top: 2px solid black;
+     }
+     .outer {
+         margin: 0 auto;
+         width: 600px;
+     }
+     .inner {
+         margin: 0px;
+     }
+     {{ pygments_html_formatter_css }}
+    </style>
 
-  <body>
-    <div class="outer">
-      <div class="inner">
-        {% call heading1("home", title) %}
-          {% block content %}
-          {% endblock %}
-        {% endcall %}
+    <body>
+        <div class="outer">
+            <div class="inner">
+                {% call heading1("home", title) %}
+                    {% block content %}
+                    {% endblock %}
+                {% endcall %}
 
-      </div>
-    </div>
-    <script type="text/javascript" src="static/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/alpine-collective/alpine-magic-helpers@1.2.x/dist/index.min.js"></script>
-    <script type="text/javascript" src="static/alpine3xx.persist.cdn.min.js"></script>
-    <script type="text/javascript" src="static/alpine3xx.cdn.min.js"></script>
-    <script type="text/javascript" src="static/site.js"></script>
-  </body>
+            </div>
+        </div>
+        <script type="text/javascript" src="static/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/alpine-collective/alpine-magic-helpers@1.2.x/dist/index.min.js"></script>
+        <script type="text/javascript" src="static/alpine3xx.persist.cdn.min.js"></script>
+        <script type="text/javascript" src="static/alpine3xx.cdn.min.js"></script>
+        <script type="text/javascript" src="static/site.js"></script>
+    </body>
 </html>
