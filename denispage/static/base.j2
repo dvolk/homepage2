@@ -79,7 +79,7 @@
 {% endmacro %}
 
 {% macro code_block(code_lang) %}
-    <div style="padding-left: 10px; border: 4px dotted #ccc">
+    <div style="padding-left: 10px; border: 4px dotted #ccc; border-radius: 10px;">
         {{ pygments_code_block(caller(), code_lang) }}
     </div>
 {% endmacro %}
